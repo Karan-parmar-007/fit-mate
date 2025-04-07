@@ -1,11 +1,13 @@
 from app.utils.db import db
 from app.utils.logger import logger
 from bson.objectid import ObjectId
+from app.models.sub_exercise import SubExerciseModel
 
 
 class ExerciseModel:
     def __init__(self):
         self.collection = db["exercises"]
+        self.sub_exercise_model = SubExerciseModel()
 
     def add_main_name(self, main_name):
         """
@@ -23,14 +25,15 @@ class ExerciseModel:
         logger.info(f"Exercise created: {main_name}")
         return True
 
-    def add_subtype(self, exercise_id, subtype_name, subtype_id):
+    def add_subtype(self, exercise_id, subtype_name, image):
         """
         Adds a new subtype to the subtype array of the given exercise by _id.
         """
         try:
+            sub_model_id = self.sub_exercise_model.create_sub_exercise(subtype_name, image)
             result = self.collection.update_one(
                 {"_id": ObjectId(exercise_id)},
-                {"$addToSet": {"subtype": {subtype_name: subtype_id}}}
+                {"$addToSet": {"subtype": {subtype_name: sub_model_id}}}
             )
             if result.modified_count > 0:
                 logger.info(f"Subtype '{subtype_name}' added to exercise {exercise_id}")
@@ -39,11 +42,13 @@ class ExerciseModel:
             logger.error(f"Error adding subtype: {e}")
         return False
 
-    def remove_subtype(self, exercise_id, subtype_name):
+    def remove_subtype(self, exercise_id, subtype_name, subtype_id):
         """
         Removes a subtype from the subtype array of the given exercise by _id.
         """
         try:
+            self.sub_exercise_model.delete_sub_exercise(subtype_id)
+
             result = self.collection.update_one(
                 {"_id": ObjectId(exercise_id)},
                 {"$pull": {"subtype": {subtype_name: {"$exists": True}}}}

@@ -1,15 +1,17 @@
 from app.utils.db import db
 from app.utils.logger import logger
 from bson.objectid import ObjectId
+import base64
 
 class SubExerciseModel:
     def __init__(self):
         self.collection = db["sub_exercises"]
 
-    def create_sub_exercise(self, name):
+    def create_sub_exercise(self, name, image):
         try:
             result = self.collection.insert_one({
                 "name": name,
+                "image": image,
                 "similar_exe": []
             })
             logger.info(f"Sub-exercise created with _id: {result.inserted_id}")
@@ -27,6 +29,7 @@ class SubExerciseModel:
         except Exception as e:
             logger.error(f"Error deleting sub-exercise: {e}")
         return False
+    
 
     def add_similar_exercise(self, sub_exercise_id, name, similar_id):
         try:
