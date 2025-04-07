@@ -1,8 +1,7 @@
 from app.models.user_model import UserModel
 from flask import Blueprint, request, jsonify
 from app.utils.logger import logger
-
-user_bp = Blueprint("user", __name__)
+from app.blueprints.user import user_bp
 user_model = UserModel()
 
 
