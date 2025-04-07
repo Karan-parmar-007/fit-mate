@@ -21,6 +21,39 @@ logger.info(f"Using database: {DATABASE_NAME}")
 # Note: MongoClient manages connection pooling automatically
 client = MongoClient(MONGO_URI)
 
+
 # Get database reference
 # Important: This is a lightweight operation, doesn't establish actual connection yet
 db = client.get_database()  # Defaults to database from URI if none specified
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
