@@ -35,24 +35,24 @@ def create_app():
     from app.blueprints.user import user_bp
     from app.blueprints.exercise import exercise_bp
     from app.blueprints.daily import daily_bp
+    from app.blueprints.gemini import gemini_bp
 
     from app.blueprints.sub_exercise import sub_exercise_bp
 
-    with app.app_context():
-        print("Initializing scheduler...")
-        init_scheduler(app)
-        print("Scheduler initialized successfully!")
 
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(exercise_bp, url_prefix='/api/exercise')
     app.register_blueprint(daily_bp, url_prefix='/api/daily')
     app.register_blueprint(sub_exercise_bp, url_prefix='/api/sub_exercise')
+    app.register_blueprint(gemini_bp, url_prefix='/api/gemini')
+    
+    
 
     # Initialize scheduler within app context
-    # with app.app_context():
-    #     logger.info("Initializing scheduler...")
-    #     init_scheduler(app)
-    #     logger.info("Scheduler initialized successfully!")
+    with app.app_context():
+        logger.info("Initializing scheduler...")
+        init_scheduler(app)
+        logger.info("Scheduler initialized successfully!")
 
     # Log registered URLs for debugging
     logger.info("Registered URLs:")
