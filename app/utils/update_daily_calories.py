@@ -11,6 +11,8 @@ overall_model = OverallModel()
 def migrate_daily_to_overall():
     daily_data = list(daily_collection.find({}))
 
+    print("here")
+
     for entry in daily_data:
         raw_id = str(entry["_id"])  # e.g., "user_Y2hpbm1heTIwMDNjcEBnbWFpbC5jb20"
         user_id = raw_id.split("_")[1]  # Extract the actual user ID
@@ -30,7 +32,7 @@ def migrate_daily_to_overall():
                     total_protein += nutrients.get("protein", 0)
 
         # Day key (e.g. "day1", "day2", ...)
-        overall_doc = overall_model.collection.find_one({"_id": user_id})
+        overall_doc = overall_model.collection.find_one({"user_id": user_id})
         current_day_count = len(overall_doc["overall_callorie"]) if overall_doc else 0
         day_key = f"day{current_day_count + 1}"
 
@@ -48,7 +50,7 @@ def migrate_daily_to_overall():
         )
 
         if success:
-            daily_collection.delete_one({"_id": entry["_id"]})
+            daily_collection.delete_one({"_id": raw_id})
             logger.info(f"Migrated and deleted daily data for user {user_id}")
         else:
             logger.error(f"Failed to migrate data for user {user_id}")

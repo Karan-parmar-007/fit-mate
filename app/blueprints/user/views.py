@@ -10,25 +10,30 @@ def login_or_signup():
     """
     Logs in or signs up a user based on email.
     Returns user_exist: True if user already exists, otherwise creates user.
+    Also returns user_id in both cases.
     """
     data = request.json
     email = data.get("email")
-    
 
-    if not email :
+    if not email:
         return jsonify({"success": False, "message": "email is required"}), 400
 
-    user_exists, user_id = user_model.check_user_exists(email)
+    # Try creating the user
+    success, user_id = user_model.create_user(email)
 
-    if user_exists:
-        return jsonify({"success": True, "user_exist": True, "user_id": str(user_id)}), 200
-
-    # Create user if not exist
-    created = user_model.create_user(email)
-    if created:
-        return jsonify({"success": True, "user_exist": False}), 200
+    if success:
+        user_exist = False if user_id else True
+        return jsonify({
+            "success": True,
+            "user_exist": user_exist,
+            "user_id": user_id
+        }), 200
     else:
-        return jsonify({"success": False, "message": "User creation failed"}), 500
+        return jsonify({
+            "success": False,
+            "message": "User creation failed",
+            "user_id": user_id
+        }), 500
 
 
 @user_bp.route("/update_user", methods=["POST"])

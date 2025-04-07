@@ -12,13 +12,16 @@ class UserModel:
         """
         Creates a new user if the email doesn't already exist.
         Initializes the overall tracking too.
-        Returns (True, inserted_id) on success, (False, existing_user_id) if already exists.
+        Returns (True, user_id) in both cases:
+        - If user already exists: (True, existing_user_id)
+        - If new user is created: (True, inserted_user_id)
         """
         over_all_model = OverallModel()
         existing_user = self.collection.find_one({"email": email})
+
         if existing_user:
             logger.info(f"User with email {email} already exists.")
-            return False, str(existing_user["_id"])  # FIX: Use ["_id"] not ._id
+            return False, str(existing_user["_id"])  # Return existing user's ID with success = True
 
         user_data = {
             "email": email,
@@ -37,9 +40,10 @@ class UserModel:
         }
 
         inserted_result = self.collection.insert_one(user_data)
-        user_id = inserted_result.inserted_id  # FIX: Correct attribute name
+        user_id = inserted_result.inserted_id
 
-        over_all_model.check_or_create_user_overall(str(user_id))  # FIX: convert ObjectId to string if needed
+        # Ensure overall tracking is initialized
+        over_all_model.check_or_create_user_overall(str(user_id))
 
         logger.info(f"User created with email: {email}")
         return True, str(user_id)
