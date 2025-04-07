@@ -6,7 +6,7 @@ class UserModel:
     def __init__(self):
         self.collection = db["users"]
 
-    def create_user(self, email, name):
+    def create_user(self, email):
         """
         Creates a new user if the email doesn't already exist.
         Only email and name are required initially; the rest will be updated later.
@@ -15,11 +15,11 @@ class UserModel:
         existing_user = self.collection.find_one({"email": email})
         if existing_user:
             logger.info(f"User with email {email} already exists.")
-            return False
+            return False, existing_user._id
 
         user_data = {
             "email": email,
-            "name": name,
+            "name": None,
             "age": None,
             "height": None,
             "weight": None,
@@ -65,5 +65,8 @@ class UserModel:
 
 
     def check_user_exists(self, email):
-        return self.collection.find_one({"email": email}) is not None
+        user = self.collection.find_one({"email": email})
+        if user:
+            return True, user["_id"]
+        return False, None
 

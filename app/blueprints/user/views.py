@@ -13,18 +13,18 @@ def login_or_signup():
     """
     data = request.json
     email = data.get("email")
-    name = data.get("name")
+    
 
-    if not email or not name:
-        return jsonify({"success": False, "message": "email and name are required"}), 400
+    if not email :
+        return jsonify({"success": False, "message": "email is required"}), 400
 
-    user_exists = user_model.check_user_exists(email)
+    user_exists, user_id = user_model.check_user_exists(email)
 
     if user_exists:
-        return jsonify({"success": True, "user_exist": True}), 200
+        return jsonify({"success": True, "user_exist": True, "user_id": str(user_id)}), 200
 
     # Create user if not exist
-    created = user_model.create_user(email, name)
+    created = user_model.create_user(email)
     if created:
         return jsonify({"success": True, "user_exist": False}), 200
     else:
@@ -53,7 +53,7 @@ def update_user():
         return jsonify({"success": False, "message": "User not found"}), 404
 
 
-@user_bp.route("/delete_user", methods=["POST"])
+@user_bp.route("/delete_user", methods=["DELETE"])
 def delete_user():
     """
     Deletes a user by email.
