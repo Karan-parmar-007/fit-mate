@@ -32,8 +32,10 @@ def create_app():
 
     # Register Blueprints
     from app.blueprints.user import user_bp
+    from app.blueprints.exercise import exercise_bp
 
     app.register_blueprint(user_bp, url_prefix='/api/user')
+    app.register_blueprint(exercise_bp, url_prefix='/api/exercise')
 
     # Initialize scheduler within app context
     # with app.app_context():
