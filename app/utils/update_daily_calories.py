@@ -31,8 +31,7 @@ def migrate_daily_to_overall():
                     total_protein += nutrients.get("protein", 0)
 
         # Day key (e.g. "day1", "day2", ...)
-        overall_doc = overall_model.collection.find_one({"user_id": user_id})
-        print(overall_doc)
+        overall_doc = overall_model.collection.find_one({"user_id": ObjectId(user_id)})
         current_day_count = len(overall_doc["overall_callorie"]) if overall_doc else 0
         day_key = f"day{current_day_count + 1}"
 

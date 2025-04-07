@@ -62,14 +62,28 @@ class OverallModel:
 
     def add_day_data(self, user_id, day_key, nutrition_data, did_workout):
         try:
-            update_result = self.collection.update_one(
-                {"_id": user_id},
+            self.check_or_create_user_overall(user_id)
+
+            calorie_entry = {
+                day_key: nutrition_data
+            }
+
+            gym_entry = {
+                day_key: did_workout
+            }
+
+            result = self.collection.update_one(
+                {"user_id": ObjectId(user_id)},
                 {
-                    "$set": {f"has_gone_to_gym.{day_key}": did_workout},
-                    "$set": {f"overall_callorie.{day_key}": nutrition_data}
+                    "$push": {
+                        "overall_callorie": calorie_entry,
+                        "has_gone_to_gym": gym_entry
+                    }
                 }
             )
-            return update_result.modified_count > 0
+
+            return result.modified_count > 0
         except Exception as e:
             logger.error(f"Error updating overall data: {e}")
             return False
+
