@@ -1,14 +1,14 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from datetime import datetime
-from app.utils.update_daily_calories import update_calories
+from app.utils.update_daily_calories import migrate_daily_to_overall
 
 
 _scheduler = None 
 
 def update_overall_calories():
-    update_calories()
-    
+    migrate_daily_to_overall()
+    return True
 
 def init_scheduler(app):
     """Initialize the scheduler with the Flask app context."""

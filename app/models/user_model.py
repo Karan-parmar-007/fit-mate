@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 from app.utils.db import db
 from app.utils.logger import logger
+from app.models.overall_model import OverallModel
 
 
 class UserModel:
@@ -10,13 +11,14 @@ class UserModel:
     def create_user(self, email):
         """
         Creates a new user if the email doesn't already exist.
-        Only email and name are required initially; the rest will be updated later.
-        Returns True on success, False if user already exists.
+        Initializes the overall tracking too.
+        Returns (True, inserted_id) on success, (False, existing_user_id) if already exists.
         """
+        over_all_model = OverallModel()
         existing_user = self.collection.find_one({"email": email})
         if existing_user:
             logger.info(f"User with email {email} already exists.")
-            return False, existing_user._id
+            return False, str(existing_user["_id"])  # FIX: Use ["_id"] not ._id
 
         user_data = {
             "email": email,
@@ -34,9 +36,14 @@ class UserModel:
             "pull_up": None
         }
 
-        self.collection.insert_one(user_data)
+        inserted_result = self.collection.insert_one(user_data)
+        user_id = inserted_result.inserted_id  # FIX: Correct attribute name
+
+        over_all_model.check_or_create_user_overall(str(user_id))  # FIX: convert ObjectId to string if needed
+
         logger.info(f"User created with email: {email}")
-        return True
+        return True, str(user_id)
+
 
     def update_user(self, email, update_data):
         """
