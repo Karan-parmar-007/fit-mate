@@ -2,6 +2,7 @@ from app.models.user_model import UserModel
 from flask import Blueprint, request, jsonify
 from app.utils.logger import logger
 from app.blueprints.user import user_bp
+from app.models.overall_model import OverallModel
 user_model = UserModel()
 
 
@@ -73,3 +74,35 @@ def delete_user():
         return jsonify({"success": True, "message": "User deleted"}), 200
     else:
         return jsonify({"success": False, "message": "User not found"}), 404
+
+
+@user_bp.route("/get_user_overall_data", methods=["GET"])
+def get_user_overall_data():
+    """
+    Fetches the user's overall calorie and gym status.
+    Expects: { "user_id": "<user_id>" }
+    Returns: overall_callorie and has_gone_to_gym
+    """
+    data = request.json
+    user_id = data.get("user_id")
+
+    if not user_id:
+        return jsonify({"success": False, "message": "user_id is required"}), 400
+
+    try:
+        overall_model = OverallModel()
+        result = overall_model.get_user_overall_data(user_id)
+        
+        if result:
+            return jsonify({
+                "success": True,
+                "data": result
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "message": "User data not found"
+            }), 404
+    except Exception as e:
+        logger.error(f"Failed to fetch overall data: {e}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500

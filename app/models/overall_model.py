@@ -52,7 +52,7 @@ class OverallModel:
         Fetches the user's overall_callorie and has_gone_to_gym data.
         """
         try:
-            doc = self.collection.find_one({"user_id": user_id}, {"_id": 0, "overall_callorie": 1, "has_gone_to_gym": 1})
+            doc = self.collection.find_one({"user_id": ObjectId(user_id)}, {"_id": 0, "overall_callorie": 1, "has_gone_to_gym": 1})
             if doc:
                 return doc
         except Exception as e:
