@@ -4,6 +4,7 @@ from pymongo import MongoClient  # Import MongoClient for MongoDB
 # from app.cron.scheduler import init_scheduler
 from flask_cors import CORS
 from app.utils.logger import logger
+from app.cron.scheduler import init_scheduler
 
 
 def create_app():
@@ -34,13 +35,19 @@ def create_app():
     from app.blueprints.user import user_bp
     from app.blueprints.exercise import exercise_bp
     from app.blueprints.daily import daily_bp
+
     from app.blueprints.sub_exercise import sub_exercise_bp
+
+    with app.app_context():
+        print("Initializing scheduler...")
+        init_scheduler(app)
+        print("Scheduler initialized successfully!")
 
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(exercise_bp, url_prefix='/api/exercise')
     app.register_blueprint(daily_bp, url_prefix='/api/daily')
     app.register_blueprint(sub_exercise_bp, url_prefix='/api/sub_exercise')
-    
+
     # Initialize scheduler within app context
     # with app.app_context():
     #     logger.info("Initializing scheduler...")
