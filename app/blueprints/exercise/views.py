@@ -80,7 +80,7 @@ def delete_exercise():
         return jsonify({"success": False, "message": "Failed to delete exercise"}), 500
 
 
-@exercise_bp.route("/get_exercise_by_id", methods=["POST"])
+@exercise_bp.route("/get_exercise_by_id", methods=["GET"])
 def get_exercise_by_id():
     data = request.json
     exercise_id = data.get("exercise_id")
@@ -94,3 +94,25 @@ def get_exercise_by_id():
     else:
         return jsonify({"success": False, "message": "Exercise not found"}), 404
 
+@exercise_bp.route("/get_exercise_by_name", methods=["GET"])
+def get_exercise_by_name():
+    data = request.json
+    name = data.get("name")
+
+    if not name:
+        return jsonify({"success": False, "message": "exercise_id is required"}), 400
+
+    exercise = exercise_model.get_exercise_by_name(name)
+    if exercise:
+        return jsonify({"success": True, "data": exercise}), 200
+    else:
+        return jsonify({"success": False, "message": "Exercise not found"}), 404
+    
+@exercise_bp.route("/get_all_main_names", methods=["GET"])
+def get_all_main_names():
+    try:
+        exercises = exercise_model.get_all_main_names()
+        return jsonify({"success": True, "data": exercises}), 200
+    except Exception as e:
+        logger.error(f"API error in get_all_main_names: {e}")
+        return jsonify({"success": False, "message": "Something went wrong"}), 500

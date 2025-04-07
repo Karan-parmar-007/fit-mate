@@ -96,3 +96,28 @@ class ExerciseModel:
         except Exception as e:
             logger.error(f"Error fetching exercise by ID: {e}")
         return None
+    
+    def get_exercise_by_name(self, name):
+        """
+        Fetches exercise document by _id.
+        """
+        try:
+            doc = self.collection.find_one({"main_name": name})
+            if doc:
+                doc["_id"] = str(doc["_id"])  # Convert ObjectId to string for readability
+                return doc
+        except Exception as e:
+            logger.error(f"Error fetching exercise by ID: {e}")
+        return None
+
+    def get_all_main_names(self):
+        """
+        Returns a list of all main_name values with their corresponding _id.
+        """
+        try:
+            exercises = self.collection.find({}, {"main_name": 1})
+            result = [{"_id": str(ex["_id"]), "main_name": ex["main_name"]} for ex in exercises]
+            return result
+        except Exception as e:
+            logger.error(f"Error fetching main names: {e}")
+            return []
