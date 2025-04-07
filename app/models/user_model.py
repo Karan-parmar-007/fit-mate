@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 from app.utils.db import db
 from app.utils.logger import logger
 
@@ -63,7 +64,12 @@ class UserModel:
         logger.info(f"User with email {email} deleted.")
         return True
 
-
+    def get_user_with_id(self, uid):
+        user = self.collection.find_one({"_id": ObjectId(uid)})
+        if user:
+            return user
+        return None
+    
     def check_user_exists(self, email):
         user = self.collection.find_one({"email": email})
         if user:
