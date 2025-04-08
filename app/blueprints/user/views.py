@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from app.utils.logger import logger
 from app.blueprints.user import user_bp
 from app.models.overall_model import OverallModel
+from app.utils.fetch_diet_plan import FetchDietPlan
 user_model = UserModel()
 
 
@@ -105,4 +106,38 @@ def get_user_overall_data():
             }), 404
     except Exception as e:
         logger.error(f"Failed to fetch overall data: {e}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500
+
+@user_bp.route("/get_diet_plan", methods=["GET"])
+def get_diet_plan():
+    """
+    Fetches the user's diet plan.
+    Expects: { "user_id": "<user_id>" }
+    Returns: diet plan details
+    """
+    data = request.json
+    user_id = data.get("user_id")
+    fetchiet_plan = FetchDietPlan()
+    if not user_id:
+        return jsonify({"success": False, "message": "user_id is required"}), 400
+    
+    user = user_model.get_user_with_id(user_id)
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    try:
+        result = fetchiet_plan.generate_diet(user)
+        
+        if result:
+            return jsonify({
+                "success": True,
+                "data": result
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "message": "User data not found"
+            }), 404
+    except Exception as e:
+        logger.error(f"Failed to fetch diet plan: {e}")
         return jsonify({"success": False, "message": "Internal server error"}), 500

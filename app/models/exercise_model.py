@@ -91,17 +91,51 @@ class ExerciseModel:
 
     def get_exercise_by_id(self, exercise_id):
         """
-        Fetches exercise document by _id.
+        Fetches exercise document by _id, including sub-exercise details with images.
         """
         try:
+            # Fetch the main exercise document
             doc = self.collection.find_one({"_id": ObjectId(exercise_id)})
-            if doc:
-                doc["_id"] = str(doc["_id"])  # Convert ObjectId to string for readability
-                return doc
+            if not doc:
+                logger.info(f"No exercise found with ID: {exercise_id}")
+                return None
+
+            # Convert ObjectId to string for readability
+            doc["_id"] = str(doc["_id"])
+
+            # If there are subtypes, fetch their details including images
+            if "subtype" in doc and doc["subtype"]:
+                updated_subtypes = []
+                for subtype in doc["subtype"]:
+                    # Assuming subtype is a dictionary with a name and sub-exercise ID
+                    for subtype_name, sub_exercise_id in subtype.items():
+                        # Fetch sub-exercise details
+                        sub_exercise = self.sub_exercise_model.collection.find_one({"_id": ObjectId(sub_exercise_id)})
+                        if sub_exercise:
+                            sub_exercise["_id"] = str(sub_exercise["_id"])  # Convert ObjectId to string
+                            updated_subtypes.append({
+                                "name": subtype_name,
+                                "id": sub_exercise["_id"],
+                                "image": sub_exercise.get("image"),  # Include the image
+                                "similar_exe": sub_exercise.get("similar_exe", [])
+                            })
+                        else:
+                            # If sub-exercise not found, just include basic info
+                            updated_subtypes.append({
+                                "name": subtype_name,
+                                "id": sub_exercise_id,
+                                "image": None,
+                                "similar_exe": []
+                            })
+                # Replace the original subtype array with detailed info
+                doc["subtype"] = updated_subtypes
+
+            return doc
+
         except Exception as e:
             logger.error(f"Error fetching exercise by ID: {e}")
-        return None
-    
+            return None
+        
     def get_exercise_by_name(self, name):
         """
         Fetches exercise document by _id.
